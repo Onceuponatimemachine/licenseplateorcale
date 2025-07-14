@@ -17,36 +17,19 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh; /* Full viewport height */
-            background: linear-gradient(135deg, #2a0a4a 0%, #0a0a2a 100%); /* Mystical gradient background */
+            /* Mystical gradient background (retained) */
+            background: linear-gradient(135deg, #2a0a4a 0%, #0a0a2a 100%);
             color: #e0e0e0; /* Lighter text color for contrast on dark background */
             padding: 1rem; /* Padding around the content */
             box-sizing: border-box; /* Include padding in element's total width and height */
-            overflow: hidden; /* Hide overflow from background animation */
-            position: relative; /* For background pseudo-element */
+            overflow: hidden; /* Still good practice for general layout */
+            position: relative; /* Still good practice for general layout */
         }
 
-        /* Mystical Background Animation */
-        body::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at 20% 80%, rgba(138, 43, 226, 0.1) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 20%, rgba(75, 0, 130, 0.1) 0%, transparent 50%);
-            background-size: 200% 200%; /* Larger background to animate */
-            animation: backgroundPan 30s linear infinite alternate; /* Slow, gentle movement */
-            z-index: -1; /* Behind content */
-        }
-
-        @keyframes backgroundPan {
-            0% { background-position: 0% 0%; }
-            100% { background-position: 100% 100%; }
-        }
+        /* Background animation and summoning circle CSS removed */
 
         .image-container {
-            position: relative; /* Needed for absolute positioning of summoning circle */
+            position: relative; /* Needed for absolute positioning of potential loading spinner */
             width: 100%;
             max-width: 600px; /* Max width for the image container */
             height: 400px; /* Fixed height for the image display area */
@@ -85,23 +68,7 @@
             object-fit: cover; /* Stretch to fill the container, cropping if necessary */
         }
 
-        /* Summoning Circle Overlay */
-        #summoningCircle {
-            position: absolute;
-            inset: 0; /* Covers the entire parent (image-container) */
-            background: radial-gradient(circle, rgba(138,43,226,0.6) 0%, rgba(75,0,130,0) 70%); /* Glowing orb effect */
-            border-radius: 50%; /* Circular shape */
-            opacity: 0; /* Start hidden */
-            transform: scale(0.5); /* Start small */
-            transition: all 0.7s ease-out; /* Match image transition */
-            z-index: 10; /* Above the image */
-            pointer-events: none; /* Allow clicks to pass through */
-        }
-
-        #summoningCircle.active {
-            opacity: 1; /* Fade in */
-            transform: scale(1); /* Expand to full size */
-        }
+        /* Summoning Circle Overlay CSS removed */
 
         /* Responsive adjustments for smaller screens */
         @media (max-width: 768px) {
@@ -231,7 +198,7 @@
 
     <div class="image-container">
         <img id="displayImage" src="loading.gif" alt="Summoning Oracle..." class="initial-placeholder">
-        <div id="summoningCircle"></div> <!-- Summoning circle overlay -->
+        <!-- Summoning circle overlay HTML removed -->
     </div>
 
     <div class="button-group">
@@ -280,7 +247,7 @@
         const muteIconButton = document.getElementById('muteIconButton');
         const historyContainer = document.getElementById('historyContainer');
         const summonSound = document.getElementById('summonSound');
-        const summoningCircle = document.getElementById('summoningCircle'); // Get reference to the circle
+        // const summoningCircle = document.getElementById('summoningCircle'); // Removed reference
 
         const historyImages = []; // Stores paths of the last 3 images
         const maxHistory = 3; // Maximum number of history images to display
@@ -334,7 +301,7 @@
 
             // Add summoning class to initiate fade-out/blur animation
             displayImage.classList.add('is-summoning');
-            summoningCircle.classList.add('active'); // Activate summoning circle animation
+            // summoningCircle.classList.add('active'); // Removed summoning circle activation
 
             // Play sound only if it's a new random summon (not from history click)
             if (isRandom) {
@@ -351,7 +318,7 @@
                 // This triggers the fade-in/unblur animation
                 displayImage.onload = () => {
                     displayImage.classList.remove('is-summoning');
-                    summoningCircle.classList.remove('active'); // Deactivate summoning circle
+                    // summoningCircle.classList.remove('active'); // Removed summoning circle deactivation
                     randomizeButton.disabled = false; // Re-enable button
                     muteIconButton.disabled = false;
 
@@ -371,7 +338,7 @@
                     displayImage.src = "https://placehold.co/600x400/f97316/ffffff?text=Image+Load+Error";
                     displayImage.alt = "Error loading image.";
                     displayImage.classList.remove('is-summoning'); // Ensure animation class is removed
-                    summoningCircle.classList.remove('active'); // Deactivate summoning circle
+                    // summoningCircle.classList.remove('active'); // Removed summoning circle deactivation
                     randomizeButton.disabled = false; // Re-enable button
                     muteIconButton.disabled = false;
                 };
