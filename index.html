@@ -6,24 +6,47 @@
     <title>✨License Plate Oracle✨</title>
     <!-- Tailwind CSS CDN for easy styling -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Cinzel Decorative for a mystical feel -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* Custom styles for the body and image container */
+        /* Base styles for the body */
         body {
-            font-family: 'Inter', sans-serif; /* Using Inter font */
+            font-family: 'Inter', sans-serif; /* Default font */
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh; /* Full viewport height */
-            /* Mystical gradient background */
-            background: linear-gradient(135deg, #2a0a4a 0%, #0a0a2a 100%);
+            background: linear-gradient(135deg, #2a0a4a 0%, #0a0a2a 100%); /* Mystical gradient background */
             color: #e0e0e0; /* Lighter text color for contrast on dark background */
             padding: 1rem; /* Padding around the content */
             box-sizing: border-box; /* Include padding in element's total width and height */
+            overflow: hidden; /* Hide overflow from background animation */
+            position: relative; /* For background pseudo-element */
+        }
+
+        /* Mystical Background Animation */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 80%, rgba(138, 43, 226, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(75, 0, 130, 0.1) 0%, transparent 50%);
+            background-size: 200% 200%; /* Larger background to animate */
+            animation: backgroundPan 30s linear infinite alternate; /* Slow, gentle movement */
+            z-index: -1; /* Behind content */
+        }
+
+        @keyframes backgroundPan {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
         }
 
         .image-container {
-            position: relative; /* Needed for absolute positioning of potential loading spinner */
+            position: relative; /* Needed for absolute positioning of summoning circle */
             width: 100%;
             max-width: 600px; /* Max width for the image container */
             height: 400px; /* Fixed height for the image display area */
@@ -62,6 +85,24 @@
             object-fit: cover; /* Stretch to fill the container, cropping if necessary */
         }
 
+        /* Summoning Circle Overlay */
+        #summoningCircle {
+            position: absolute;
+            inset: 0; /* Covers the entire parent (image-container) */
+            background: radial-gradient(circle, rgba(138,43,226,0.6) 0%, rgba(75,0,130,0) 70%); /* Glowing orb effect */
+            border-radius: 50%; /* Circular shape */
+            opacity: 0; /* Start hidden */
+            transform: scale(0.5); /* Start small */
+            transition: all 0.7s ease-out; /* Match image transition */
+            z-index: 10; /* Above the image */
+            pointer-events: none; /* Allow clicks to pass through */
+        }
+
+        #summoningCircle.active {
+            opacity: 1; /* Fade in */
+            transform: scale(1); /* Expand to full size */
+        }
+
         /* Responsive adjustments for smaller screens */
         @media (max-width: 768px) {
             .image-container {
@@ -88,6 +129,7 @@
 
         /* Mystical button styling */
         .oracle-button {
+            font-family: 'Cinzel Decorative', cursive; /* Thematic font for button */
             background: linear-gradient(45deg, #8a2be2, #4b0082); /* Purple to indigo gradient */
             color: #fff;
             font-weight: 600;
@@ -146,6 +188,7 @@
         }
 
         .title {
+            font-family: 'Cinzel Decorative', cursive; /* Thematic font for title */
             color: #aaddff; /* Lighter, almost glowing title color */
             text-shadow: 0 0 10px rgba(170, 221, 255, 0.6); /* Subtle glow for the title */
         }
@@ -188,6 +231,7 @@
 
     <div class="image-container">
         <img id="displayImage" src="loading.gif" alt="Summoning Oracle..." class="initial-placeholder">
+        <div id="summoningCircle"></div> <!-- Summoning circle overlay -->
     </div>
 
     <div class="button-group">
@@ -233,9 +277,10 @@
 
         const displayImage = document.getElementById('displayImage');
         const randomizeButton = document.getElementById('randomizeButton');
-        const muteIconButton = document.getElementById('muteIconButton'); // Renamed from muteButton
+        const muteIconButton = document.getElementById('muteIconButton');
         const historyContainer = document.getElementById('historyContainer');
         const summonSound = document.getElementById('summonSound');
+        const summoningCircle = document.getElementById('summoningCircle'); // Get reference to the circle
 
         const historyImages = []; // Stores paths of the last 3 images
         const maxHistory = 3; // Maximum number of history images to display
@@ -282,13 +327,14 @@
         function animateAndDisplayImage(imagePath, isRandom) {
             // Disable buttons during animation to prevent rapid clicks
             randomizeButton.disabled = true;
-            muteIconButton.disabled = true; // Disable mute button during animation too
+            muteIconButton.disabled = true;
 
             // Remove initial placeholder styling if present
             displayImage.classList.remove('initial-placeholder');
 
             // Add summoning class to initiate fade-out/blur animation
             displayImage.classList.add('is-summoning');
+            summoningCircle.classList.add('active'); // Activate summoning circle animation
 
             // Play sound only if it's a new random summon (not from history click)
             if (isRandom) {
@@ -305,8 +351,9 @@
                 // This triggers the fade-in/unblur animation
                 displayImage.onload = () => {
                     displayImage.classList.remove('is-summoning');
+                    summoningCircle.classList.remove('active'); // Deactivate summoning circle
                     randomizeButton.disabled = false; // Re-enable button
-                    muteIconButton.disabled = false; // Re-enable mute button
+                    muteIconButton.disabled = false;
 
                     // Add to history only if it's a random summon (not from history click)
                     if (isRandom) {
@@ -324,8 +371,9 @@
                     displayImage.src = "https://placehold.co/600x400/f97316/ffffff?text=Image+Load+Error";
                     displayImage.alt = "Error loading image.";
                     displayImage.classList.remove('is-summoning'); // Ensure animation class is removed
+                    summoningCircle.classList.remove('active'); // Deactivate summoning circle
                     randomizeButton.disabled = false; // Re-enable button
-                    muteIconButton.disabled = false; // Re-enable mute button
+                    muteIconButton.disabled = false;
                 };
 
             }, 700); // This timeout matches the CSS transition duration for the fade-out
