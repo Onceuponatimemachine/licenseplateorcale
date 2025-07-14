@@ -75,21 +75,27 @@
 
     <script>
         // Array of image paths.
-        // IMPORTANT: You need to place your images in a folder named 'images'
-        // in the same directory as this HTML file on GitHub.
-        // For example, if you have 'my_photo1.jpg' and 'my_photo2.png',
-        // they should be in 'your-repo-name/images/my_photo1.jpg' and
-        // 'your-repo-name/images/my_photo2.png'.
-        //
-        // Please list your image file names here:
-        const imagePaths = [
-            'images/your_image1.jpg', // Replace with your actual image file names
-            'images/your_image2.png',
-            'images/another_image.gif',
-            // Add more image paths here as needed
-            // Example: 'images/vacation_pic.jpg',
-            // Example: 'images/pet_photo.png',
-        ];
+        // This script now dynamically generates paths for images named
+        // image01.jpg, image02.jpg, ..., image588.jpg
+        const imagePaths = [];
+        const numberOfImages = 588; // Set the total number of images
+        const imagePrefix = 'image'; // Prefix for your image names
+        const imageExtension = '.jpg'; // Extension for your image files
+
+        for (let i = 1; i <= numberOfImages; i++) {
+            // Format the number with leading zeros to ensure consistent naming (e.g., 1 -> "01", 10 -> "10", 100 -> "100")
+            // This logic handles 2-digit and 3-digit numbering as per your example (image01.jpg, image100.jpg)
+            let formattedNumber;
+            if (i < 10) {
+                formattedNumber = '0' + i; // e.g., 1 -> "01", 9 -> "09"
+            } else if (i < 100) {
+                formattedNumber = '' + i; // e.g., 10 -> "10", 99 -> "99"
+            } else {
+                formattedNumber = '' + i; // e.g., 100 -> "100", 588 -> "588"
+            }
+
+            imagePaths.push(`images/${imagePrefix}${formattedNumber}${imageExtension}`);
+        }
 
         const displayImage = document.getElementById('displayImage');
         const randomizeButton = document.getElementById('randomizeButton');
@@ -97,7 +103,7 @@
         // Function to select and display a random image
         function showRandomImage() {
             if (imagePaths.length === 0) {
-                displayImage.src = "https://placehold.co/600x400/ef4444/ffffff?text=No+Images+Configured";
+                displayImage.src = "https://placehold.co/600x400/ef4444/ffffff?text=No+Images+Found";
                 displayImage.alt = "Error: No images configured.";
                 return;
             }
