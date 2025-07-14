@@ -15,8 +15,9 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh; /* Full viewport height */
-            background-color: #f0f4f8; /* Light background */
-            color: #334155; /* Darker text color */
+            /* Mystical gradient background */
+            background: linear-gradient(135deg, #2a0a4a 0%, #0a0a2a 100%);
+            color: #e0e0e0; /* Lighter text color for contrast on dark background */
             padding: 1rem; /* Padding around the content */
             box-sizing: border-box; /* Include padding in element's total width and height */
         }
@@ -25,21 +26,22 @@
             width: 100%;
             max-width: 600px; /* Max width for the image container */
             height: 400px; /* Fixed height for the image display area */
-            background-color: #e2e8f0; /* Lighter background for the image area */
-            border-radius: 1rem; /* Rounded corners */
+            background-color: rgba(255, 255, 255, 0.08); /* Slightly transparent white for ethereal feel */
+            border-radius: 1.5rem; /* More rounded corners */
             display: flex;
             justify-content: center;
             align-items: center;
             overflow: hidden; /* Hide overflowing parts of the image */
-            margin-bottom: 2rem; /* Space below the image */
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            margin-bottom: 2.5rem; /* Increased space below the image */
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4), 0 0 20px rgba(173, 216, 230, 0.3); /* Deeper shadow with a subtle glow */
+            border: 1px solid rgba(173, 216, 230, 0.2); /* Subtle light border */
         }
 
         .image-container img {
             max-width: 100%; /* Ensure image fits within its container */
             max-height: 100%; /* Ensure image fits within its container */
             object-fit: contain; /* Scale the image to fit the container without cropping */
-            border-radius: 1rem; /* Rounded corners for the image itself */
+            border-radius: 1.2rem; /* Slightly less rounded than container */
         }
 
         /* Responsive adjustments for smaller screens */
@@ -54,8 +56,36 @@
                 height: 250px; /* Further adjust height for very small screens */
             }
             .title {
-                font-size: 1.5rem; /* Smaller title on small screens */
+                font-size: 1.8rem; /* Smaller title on small screens */
             }
+        }
+
+        /* Mystical button styling */
+        #randomizeButton {
+            background: linear-gradient(45deg, #8a2be2, #4b0082); /* Purple to indigo gradient */
+            color: #fff;
+            font-weight: 600;
+            border-radius: 9999px; /* Fully rounded */
+            padding: 1rem 3rem; /* Larger padding */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3), 0 0 15px rgba(138, 43, 226, 0.5); /* Deeper shadow with purple glow */
+            transition: all 0.3s ease-in-out;
+            border: none; /* Remove default border */
+        }
+
+        #randomizeButton:hover {
+            background: linear-gradient(45deg, #9932cc, #6a0dad); /* Slightly lighter on hover */
+            transform: scale(1.08); /* More pronounced hover effect */
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4), 0 0 25px rgba(153, 50, 204, 0.7); /* Stronger glow on hover */
+        }
+
+        #randomizeButton:focus {
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(138, 43, 226, 0.5); /* Focus ring with mystical color */
+        }
+
+        .title {
+            color: #aaddff; /* Lighter, almost glowing title color */
+            text-shadow: 0 0 10px rgba(170, 221, 255, 0.6); /* Subtle glow for the title */
         }
     </style>
 </head>
@@ -63,14 +93,11 @@
     <h1 class="title text-4xl font-extrabold mb-8 text-center">Random Image Selector</h1>
 
     <div class="image-container">
-        <img id="displayImage" src="https://placehold.co/600x400/cbd5e1/475569?text=Click+the+button" alt="Placeholder Image">
+        <img id="displayImage" src="https://placehold.co/600x400/2a0a4a/aaddff?text=Click+the+button" alt="Placeholder Image">
     </div>
 
-    <button id="randomizeButton"
-            class="px-8 py-4 bg-blue-600 text-white font-semibold rounded-full shadow-lg
-                   hover:bg-blue-700 transition duration-300 ease-in-out
-                   transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300">
-        Show Random Image
+    <button id="randomizeButton">
+        Summon Image
     </button>
 
     <script>
