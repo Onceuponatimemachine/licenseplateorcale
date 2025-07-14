@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>✨License Plate Oracle</title>
+    <title>✨License Plate Oracle✨</title>
     <!-- Tailwind CSS CDN for easy styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -23,6 +23,7 @@
         }
 
         .image-container {
+            position: relative; /* Needed for absolute positioning of potential loading spinner */
             width: 100%;
             max-width: 600px; /* Max width for the image container */
             height: 400px; /* Fixed height for the image display area */
@@ -82,9 +83,10 @@
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3), 0 0 15px rgba(138, 43, 226, 0.5); /* Deeper shadow with purple glow */
             transition: all 0.3s ease-in-out;
             border: none; /* Remove default border */
+            cursor: pointer; /* Indicate it's clickable */
         }
 
-        #randomizeButton:hover {
+        #randomizeButton:hover:not(:disabled) {
             background: linear-gradient(45deg, #9932cc, #6a0dad); /* Slightly lighter on hover */
             transform: scale(1.08); /* More pronounced hover effect */
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4), 0 0 25px rgba(153, 50, 204, 0.7); /* Stronger glow on hover */
@@ -95,9 +97,48 @@
             box-shadow: 0 0 0 4px rgba(138, 43, 226, 0.5); /* Focus ring with mystical color */
         }
 
+        #randomizeButton:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: scale(1); /* No scale on disabled hover */
+            box-shadow: none; /* No shadow on disabled */
+        }
+
         .title {
             color: #aaddff; /* Lighter, almost glowing title color */
             text-shadow: 0 0 10px rgba(170, 221, 255, 0.6); /* Subtle glow for the title */
+        }
+
+        /* History container styling */
+        #historyContainer {
+            display: flex;
+            justify-content: center;
+            gap: 1rem; /* Space between history images */
+            margin-top: 2rem; /* Space above history section */
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+        }
+
+        .history-thumbnail {
+            width: 100px; /* Fixed width for thumbnails */
+            height: 75px; /* Fixed height for thumbnails */
+            border-radius: 0.75rem; /* Rounded corners for thumbnails */
+            object-fit: cover; /* Crop to fit, maintain aspect ratio */
+            border: 2px solid rgba(173, 216, 230, 0.2); /* Subtle border */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Small shadow */
+            cursor: pointer; /* Indicate clickable */
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        .history-thumbnail:hover {
+            transform: scale(1.05); /* Slightly enlarge on hover */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5), 0 0 10px rgba(173, 216, 230, 0.4); /* Stronger shadow/glow on hover */
+        }
+
+        @media (max-width: 480px) {
+            .history-thumbnail {
+                width: 80px; /* Smaller thumbnails on very small screens */
+                height: 60px;
+            }
         }
     </style>
 </head>
@@ -105,12 +146,20 @@
     <h1 class="title text-4xl font-extrabold mb-8 text-center">✨License Plate Oracle✨</h1>
 
     <div class="image-container">
-        <img id="displayImage" src="https://placehold.co/600x400/2a0a4a/aaddff?text=Click+Button+to+Summon+Orcale" alt="Placeholder Image">
+        <img id="displayImage" src="https://placehold.co/600x400/2a0a4a/aaddff?text=Click+Button+to+Summon+Oracle" alt="Placeholder Image">
     </div>
 
     <button id="randomizeButton">
         Summon Oracle
     </button>
+
+    <!-- History Container -->
+    <div id="historyContainer">
+        <!-- History images will be dynamically inserted here -->
+    </div>
+
+    <!-- Audio element for sound effects -->
+    <audio id="summonSound" src="sound.mp3" preload="auto"></audio>
 
     <script>
         // Array of image paths.
@@ -138,29 +187,67 @@
 
         const displayImage = document.getElementById('displayImage');
         const randomizeButton = document.getElementById('randomizeButton');
+        const historyContainer = document.getElementById('historyContainer');
+        const summonSound = document.getElementById('summonSound');
 
-        // Function to select and display a random image with animation
-        function showRandomImage() {
-            if (imagePaths.length === 0) {
-                displayImage.src = "https://placehold.co/600x400/ef4444/ffffff?text=No+Images+Found";
-                displayImage.alt = "Error: No images configured.";
-                return;
+        const historyImages = []; // Stores paths of the last 3 images
+        const maxHistory = 3; // Maximum number of history images to display
+
+        /**
+         * Plays the summon sound effect.
+         */
+        function playSummonSound() {
+            if (summonSound) {
+                summonSound.currentTime = 0; // Rewind to the start
+                summonSound.play().catch(e => console.error("Error playing sound:", e));
             }
+        }
 
+        /**
+         * Updates the display of history images below the main image.
+         */
+        function updateHistoryDisplay() {
+            historyContainer.innerHTML = ''; // Clear existing thumbnails
+
+            // Iterate through historyImages in reverse to show most recent on the left
+            for (let i = historyImages.length - 1; i >= 0; i--) {
+                const imgPath = historyImages[i];
+                const thumbnail = document.createElement('img');
+                thumbnail.src = imgPath;
+                thumbnail.alt = `History Image ${i + 1}`;
+                thumbnail.classList.add('history-thumbnail');
+                thumbnail.title = "Click to re-summon this image"; // Tooltip on hover
+
+                // Add click listener to re-summon this image to the main display
+                thumbnail.addEventListener('click', () => {
+                    displaySpecificImage(imgPath);
+                });
+
+                historyContainer.appendChild(thumbnail);
+            }
+        }
+
+        /**
+         * Handles the animation and image display logic.
+         * @param {string} imagePath - The path of the image to display.
+         * @param {boolean} isRandom - True if this is a random summon, false if from history.
+         */
+        function animateAndDisplayImage(imagePath, isRandom) {
             // Disable button during animation to prevent rapid clicks
             randomizeButton.disabled = true;
 
             // Add summoning class to initiate fade-out/blur animation
             displayImage.classList.add('is-summoning');
 
+            // Play sound only if it's a new random summon (not from history click)
+            if (isRandom) {
+                playSummonSound();
+            }
+
             // Wait for the fade-out/blur animation to complete (0.7s as per CSS transition)
             setTimeout(() => {
-                // Generate a random index
-                const randomIndex = Math.floor(Math.random() * imagePaths.length);
-                const selectedImagePath = imagePaths[randomIndex];
-
                 // Set the new image source
-                displayImage.src = selectedImagePath;
+                displayImage.src = imagePath;
                 displayImage.alt = "License Plate Oracle Image";
 
                 // Once the new image has loaded, remove the summoning class
@@ -168,6 +255,16 @@
                 displayImage.onload = () => {
                     displayImage.classList.remove('is-summoning');
                     randomizeButton.disabled = false; // Re-enable button
+
+                    // Add to history only if it's a random summon (not from history click)
+                    if (isRandom) {
+                        // Add to history and update display
+                        historyImages.push(imagePath);
+                        if (historyImages.length > maxHistory) {
+                            historyImages.shift(); // Remove the oldest image
+                        }
+                        updateHistoryDisplay();
+                    }
                 };
 
                 // Handle image loading errors (e.g., if a path is wrong)
@@ -181,7 +278,32 @@
             }, 700); // This timeout matches the CSS transition duration for the fade-out
         }
 
-        // Add event listener to the button
+        /**
+         * Selects a random image and initiates the display process.
+         */
+        function showRandomImage() {
+            if (imagePaths.length === 0) {
+                displayImage.src = "https://placehold.co/600x400/ef4444/ffffff?text=No+Images+Found";
+                displayImage.alt = "Error: No images configured.";
+                return;
+            }
+
+            // Generate a random index
+            const randomIndex = Math.floor(Math.random() * imagePaths.length);
+            const selectedImagePath = imagePaths[randomIndex];
+
+            animateAndDisplayImage(selectedImagePath, true); // True for random summon
+        }
+
+        /**
+         * Displays a specific image (e.g., from history) and initiates the display process.
+         * @param {string} path - The path of the image to display.
+         */
+        function displaySpecificImage(path) {
+            animateAndDisplayImage(path, false); // False for not a random summon
+        }
+
+        // Add event listener to the main summon button
         randomizeButton.addEventListener('click', showRandomImage);
 
         // Optional: Show a random image on initial load
