@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>License Plate Orcale</title>
+    <title>License Plate Oracle</title>
     <!-- Tailwind CSS CDN for easy styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -42,6 +42,18 @@
             max-height: 100%; /* Ensure image fits within its container */
             object-fit: contain; /* Scale the image to fit the container without cropping */
             border-radius: 1.2rem; /* Slightly less rounded than container */
+            /* Animation properties */
+            opacity: 1;
+            transform: scale(1);
+            filter: blur(0px);
+            transition: opacity 0.7s ease-out, transform 0.7s ease-out, filter 0.7s ease-out; /* Smooth transitions */
+        }
+
+        /* Class for the summoning animation state */
+        .image-container img.is-summoning {
+            opacity: 0;
+            transform: scale(0.9); /* Slightly shrink */
+            filter: blur(5px); /* Apply blur */
         }
 
         /* Responsive adjustments for smaller screens */
@@ -90,19 +102,19 @@
     </style>
 </head>
 <body>
-    <h1 class="title text-4xl font-extrabold mb-8 text-center">License Plate Orcale</h1>
+    <h1 class="title text-4xl font-extrabold mb-8 text-center">License Plate Oracle</h1>
 
     <div class="image-container">
-        <img id="displayImage" src="https://placehold.co/600x400/2a0a4a/aaddff?text=Click+the+button" alt="Placeholder Image">
+        <img id="displayImage" src="https://placehold.co/600x400/2a0a4a/aaddff?text=Click+to+Summon" alt="Placeholder Image">
     </div>
 
     <button id="randomizeButton">
-        Summon Image
+        Summon Oracle
     </button>
 
     <script>
         // Array of image paths.
-        // This script now dynamically generates paths for images based on the specified naming convention:
+        // This script dynamically generates paths for images based on the specified naming convention:
         // image01.jpg (for 1-9), image10.jpg (for 10-99), image100.jpg (for 100-588)
         const imagePaths = [];
         const numberOfImages = 588; // Set the total number of images
@@ -127,7 +139,7 @@
         const displayImage = document.getElementById('displayImage');
         const randomizeButton = document.getElementById('randomizeButton');
 
-        // Function to select and display a random image
+        // Function to select and display a random image with animation
         function showRandomImage() {
             if (imagePaths.length === 0) {
                 displayImage.src = "https://placehold.co/600x400/ef4444/ffffff?text=No+Images+Found";
@@ -135,21 +147,38 @@
                 return;
             }
 
-            // Generate a random index
-            const randomIndex = Math.floor(Math.random() * imagePaths.length);
+            // Disable button during animation to prevent rapid clicks
+            randomizeButton.disabled = true;
 
-            // Get the random image path
-            const selectedImagePath = imagePaths[randomIndex];
+            // Add summoning class to initiate fade-out/blur animation
+            displayImage.classList.add('is-summoning');
 
-            // Update the image source and alt text
-            displayImage.src = selectedImagePath;
-            displayImage.alt = "Random Image";
+            // Wait for the fade-out/blur animation to complete (0.7s as per CSS transition)
+            setTimeout(() => {
+                // Generate a random index
+                const randomIndex = Math.floor(Math.random() * imagePaths.length);
+                const selectedImagePath = imagePaths[randomIndex];
 
-            // Optional: Handle image loading errors (e.g., if a path is wrong)
-            displayImage.onerror = () => {
-                displayImage.src = "https://placehold.co/600x400/f97316/ffffff?text=Image+Load+Error";
-                displayImage.alt = "Error loading image.";
-            };
+                // Set the new image source
+                displayImage.src = selectedImagePath;
+                displayImage.alt = "License Plate Oracle Image";
+
+                // Once the new image has loaded, remove the summoning class
+                // This triggers the fade-in/unblur animation
+                displayImage.onload = () => {
+                    displayImage.classList.remove('is-summoning');
+                    randomizeButton.disabled = false; // Re-enable button
+                };
+
+                // Handle image loading errors (e.g., if a path is wrong)
+                displayImage.onerror = () => {
+                    displayImage.src = "https://placehold.co/600x400/f97316/ffffff?text=Image+Load+Error";
+                    displayImage.alt = "Error loading image.";
+                    displayImage.classList.remove('is-summoning'); // Ensure animation class is removed
+                    randomizeButton.disabled = false; // Re-enable button
+                };
+
+            }, 700); // This timeout matches the CSS transition duration for the fade-out
         }
 
         // Add event listener to the button
