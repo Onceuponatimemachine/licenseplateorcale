@@ -83,6 +83,7 @@
             display: flex;
             gap: 1rem; /* Space between buttons */
             margin-bottom: 2.5rem; /* Space below buttons */
+            align-items: center; /* Vertically align items in the group */
         }
 
         /* Mystical button styling */
@@ -96,6 +97,7 @@
             transition: all 0.3s ease-in-out;
             border: none; /* Remove default border */
             cursor: pointer; /* Indicate it's clickable */
+            white-space: nowrap; /* Prevent text wrapping */
         }
 
         .oracle-button:hover:not(:disabled) {
@@ -116,15 +118,31 @@
             box-shadow: none; /* No shadow on disabled */
         }
 
-        /* Mute button specific styling */
-        #muteButton {
-            background: linear-gradient(45deg, #4b0082, #2a0a4a); /* Darker purple gradient */
-            padding: 0.75rem 1.5rem; /* Smaller padding */
-            font-size: 0.9rem;
+        /* Mute icon button styling */
+        #muteIconButton {
+            background-color: rgba(255, 255, 255, 0.15); /* Slightly transparent background */
+            border-radius: 50%; /* Circular shape */
+            width: 48px; /* Fixed width */
+            height: 48px; /* Fixed height */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem; /* Size of the emoji icon */
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0; /* Prevent shrinking on smaller screens */
         }
 
-        #muteButton:hover:not(:disabled) {
-            background: linear-gradient(45deg, #6a0dad, #3a0a5a);
+        #muteIconButton:hover:not(:disabled) {
+            background-color: rgba(255, 255, 255, 0.25);
+            transform: scale(1.1);
+        }
+
+        #muteIconButton:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         .title {
@@ -176,8 +194,8 @@
         <button id="randomizeButton" class="oracle-button">
             Summon Oracle
         </button>
-        <button id="muteButton" class="oracle-button">
-            Mute Sound
+        <button id="muteIconButton">
+            🔊 <!-- Speaker icon for unmuted state -->
         </button>
     </div>
 
@@ -215,7 +233,7 @@
 
         const displayImage = document.getElementById('displayImage');
         const randomizeButton = document.getElementById('randomizeButton');
-        const muteButton = document.getElementById('muteButton');
+        const muteIconButton = document.getElementById('muteIconButton'); // Renamed from muteButton
         const historyContainer = document.getElementById('historyContainer');
         const summonSound = document.getElementById('summonSound');
 
@@ -262,9 +280,9 @@
          * @param {boolean} isRandom - True if this is a random summon, false if from history.
          */
         function animateAndDisplayImage(imagePath, isRandom) {
-            // Disable button during animation to prevent rapid clicks
+            // Disable buttons during animation to prevent rapid clicks
             randomizeButton.disabled = true;
-            muteButton.disabled = true; // Disable mute button during animation too
+            muteIconButton.disabled = true; // Disable mute button during animation too
 
             // Remove initial placeholder styling if present
             displayImage.classList.remove('initial-placeholder');
@@ -288,7 +306,7 @@
                 displayImage.onload = () => {
                     displayImage.classList.remove('is-summoning');
                     randomizeButton.disabled = false; // Re-enable button
-                    muteButton.disabled = false; // Re-enable mute button
+                    muteIconButton.disabled = false; // Re-enable mute button
 
                     // Add to history only if it's a random summon (not from history click)
                     if (isRandom) {
@@ -307,7 +325,7 @@
                     displayImage.alt = "Error loading image.";
                     displayImage.classList.remove('is-summoning'); // Ensure animation class is removed
                     randomizeButton.disabled = false; // Re-enable button
-                    muteButton.disabled = false; // Re-enable mute button
+                    muteIconButton.disabled = false; // Re-enable mute button
                 };
 
             }, 700); // This timeout matches the CSS transition duration for the fade-out
@@ -342,9 +360,10 @@
         randomizeButton.addEventListener('click', showRandomImage);
 
         // Add event listener for the mute button
-        muteButton.addEventListener('click', () => {
+        muteIconButton.addEventListener('click', () => {
             summonSound.muted = !summonSound.muted; // Toggle mute state
-            muteButton.textContent = summonSound.muted ? 'Unmute Sound' : 'Mute Sound'; // Update button text
+            // Update the icon based on the mute state
+            muteIconButton.textContent = summonSound.muted ? '🔇' : '🔊';
         });
 
         // Optional: Show a random image on initial load
