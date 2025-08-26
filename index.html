@@ -221,9 +221,9 @@
     <script>
         // Array of image paths.
         // This script dynamically generates paths for images based on the specified naming convention:
-        // image01.jpg (for 1-9), image10.jpg (for 10-99), image100.jpg (for 100-588)
+        // image01.jpg (for 1-9), image10.jpg (for 10-99), image100.jpg (for 100-602)
         const imagePaths = [];
-        const numberOfImages = 588; // Set the total number of images
+        const numberOfImages = 602; // Set the total number of images
         const imagePrefix = 'image'; // Prefix for your image names
         const imageExtension = '.jpg'; // Extension for your image files
 
@@ -236,7 +236,7 @@
                 // For double-digit numbers (10-99), no leading zero needed (e.g., 10, 99)
                 formattedNumber = String(i);
             } else {
-                // For triple-digit numbers (100-588), no leading zero needed (e.g., 100, 588)
+                // For triple-digit numbers (100-602), no leading zero needed (e.g., 100, 602)
                 formattedNumber = String(i);
             }
             imagePaths.push(`images/${imagePrefix}${formattedNumber}${imageExtension}`);
@@ -386,3 +386,4 @@
     </script>
 </body>
 </html>
+
